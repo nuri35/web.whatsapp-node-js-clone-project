@@ -1,0 +1,11 @@
+server/node_modules/
+*.log
+.DS_Store
+.vscode
+
+client/node_modules
+client/build
+client/.gitignore
+.env
+
+dist/
