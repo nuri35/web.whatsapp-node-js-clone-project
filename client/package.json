@@ -1,7 +1,7 @@
 {
-  "name": "client",
+  "name": "advanced-chatapp-node-js-clone-project",
   "version": "1.0.0",
-  "description": "",
+  "description": "Node js react yapıları kullanılacaktır.",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start"
