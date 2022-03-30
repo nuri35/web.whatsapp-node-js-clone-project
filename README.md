@@ -1,3 +1,3 @@
 # web.whatsapp-node-js-clone-project
 
-Node js React js express redis rabbitmq kullanılacaktır
+Node js React js express passport js redis ve rabbitmq kullanılacaktır
