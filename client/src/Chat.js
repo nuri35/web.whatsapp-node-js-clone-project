@@ -6,10 +6,10 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {Avatar,IconButton} from "@material-ui/core"
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import SendIcon from '@mui/icons-material/Send';
-
+import Picker from 'emoji-picker-react';
 import Box from '@mui/material/Box';
 import SpeedDial from '@mui/material/SpeedDial';
-
+import Toolbar from '@mui/material/Toolbar';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
@@ -19,6 +19,15 @@ import Photo from '@mui/icons-material/Photo';
 
 function Chat() {
 const [input,setInput] = useState("")
+
+const [chosenEmoji, setChosenEmoji] = useState(null);
+const [showEmoji,setShowEmoji] = useState(false)
+
+const onEmojiClick = (event, emojiObject) => {
+ 
+
+  setInput(input.concat(emojiObject.emoji))
+};
 
 const actions = [
   { icon: <FileCopyIcon />, name: 'Belge' },
@@ -32,6 +41,12 @@ const actions = [
   }
 
 
+  const clickEmoji = (e)=>{
+    e.preventDefault();
+    setShowEmoji(!showEmoji)
+  }
+
+
   return (
     <div className='chat'>
       <div className='chat__header'>
@@ -40,14 +55,6 @@ const actions = [
       <div className='chat__headerInfo'>
       <h3>Sude adıvar</h3>
       <p>last seen at ...</p>
-      </div>
-
-      <div className='chat__headerRight'>
-     
-    
-      <IconButton>
-        <MoreVertIcon />
-      </IconButton>
       </div>
 
         </div>
@@ -109,12 +116,30 @@ this is a message yeahh
 
 
         </div>
-
+       
+        {showEmoji ? 
+       <Picker 
+       onEmojiClick={onEmojiClick} 
+       pickerStyle={{ width: '100%' }}
+    
+       />
+       
+        :
+        <></>
+    }
+    
         <div className='chat__footer'>
-        <IconButton>
+      
+        <IconButton 
+        onClick={clickEmoji}
+       
+        >
         <InsertEmoticonIcon />
       </IconButton>
+
      
+    
+      
       <Box sx={{ transform: 'translateZ(0px)' }}>
       <SpeedDial
         ariaLabel="SpeedDial openIcon example"
@@ -135,7 +160,7 @@ this is a message yeahh
 
       <input value={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message ' type="text" />
       <button onClick={sendMessage} type='submit'>
-      <IconButton>
+      <IconButton >
       <SendIcon />
       </IconButton>
        
