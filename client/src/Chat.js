@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect,useRef } from 'react'
 import "./Chat.css"
 import MicIcon from '@mui/icons-material/Mic';
 import AttachFile from '@mui/icons-material/AttachFile';
@@ -14,14 +14,53 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import Photo from '@mui/icons-material/Photo';
+import io from "socket.io-client";
+import moment from 'moment';
+moment.locale("tr")
 
 
+const user = {
+  id:1234
+}
 
 function Chat() {
+ 
+ 
+  const [currentChat, setCurrentChat] = useState(null);
+ const socket =  useRef(io.connect("http://localhost:6500"))
 const [input,setInput] = useState("")
-
 const [chosenEmoji, setChosenEmoji] = useState(null);
 const [showEmoji,setShowEmoji] = useState(false)
+const [messages, setMessages] = useState([]);
+
+const actions = [
+  { icon: <FileCopyIcon />, name: 'Belge' },
+  { icon: <Photo />, name: 'Fotograflar' },
+ 
+];
+
+
+useEffect(() => {
+   
+  socket.current.on("getMessage", (data) => {
+   
+  data.createdAt =  Date.now()
+    setMessages((prev) => [...prev, data]);
+  });
+}, []);
+
+
+
+  useEffect(() => {
+
+    socket.current.emit("addUser",user.id)
+    socket.current.on("getUsers",(data)=>{
+      console.log(data)
+
+    })
+   
+   }, [user])
+   
 
 const onEmojiClick = (event, emojiObject) => {
  
@@ -29,22 +68,32 @@ const onEmojiClick = (event, emojiObject) => {
   setInput(input.concat(emojiObject.emoji))
 };
 
-const actions = [
-  { icon: <FileCopyIcon />, name: 'Belge' },
-  { icon: <Photo />, name: 'Fotograflar' },
- 
-];
   const sendMessage = (e)=>{
     e.preventDefault();
-    console.log(input)
+
+    // const receiverId = currentChat.members.find(
+    //   (member) => member !== user.id
+    // ); sımdılık herkese yollattır daha sonra redıse kaydederek ordan anlıcaz kıme yollattımızı
+
+  
+    socket.current.emit("sendMessage", {
+      senderId: user.id,
+      // receiverId,
+      text: input,
+    });
+
+    
     setInput("")
   }
+
+
 
 
   const clickEmoji = (e)=>{
     e.preventDefault();
     setShowEmoji(!showEmoji)
   }
+ 
 
 
   return (
@@ -60,60 +109,25 @@ const actions = [
         </div>
 
         <div className='chat__body'>
-          <p className='chat__message'>
+          
+          <div>
+        {messages.map((messageContent) => {
+          return (
+            <p className='chat__message chat__receiver'>
 
-           
-            this is a message yeahh
+           {messageContent?.text}
             <span className='chat__timestamp'>
-              
-            3.52pm
+            {moment(messageContent?.createdAt, "h:mm").format('h:mm')}
+           
             </span>
           </p>
 
-          <p className='chat__message chat__receiver'>
-
-this is a message yeahh
-<span className='chat__timestamp'>
-  
-3.52pm
-</span>
-</p>
-
-<p className='chat__message chat__receiver'>
-
-this is a message yeahh
-<span className='chat__timestamp'>
-  
-3.52pm
-</span>
-</p>
-
-
-
-
-
-<p className='chat__message chat__receiver'>
-
-
-this is a message yeahh
-<span className='chat__timestamp'>
-  
-3.52pm
-</span>
-</p>
-
-
-
-
-<p className='chat__message'>
-
-this is a message yeahh
-<span className='chat__timestamp'>
-  
-5.12pm
-</span>
-</p>
-
+          );
+        })}
+         </div>
+    
+         
+       
 
         </div>
        
@@ -178,3 +192,5 @@ this is a message yeahh
 }
 
 export default Chat
+
+

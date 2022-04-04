@@ -2,13 +2,15 @@
 import React,{useState,useRef,useCallback,useContext,useEffect} from 'react'
 import styled from "styled-components";
 import 'antd/dist/antd.css';
-import { GoogleLogin } from "react-google-login";
-import FacebookLogin from 'react-facebook-login';
+
+import {Google,GitHub,Twitter} from '@mui/icons-material';
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import Button from '@mui/material/Button';
-import SendIcon from '@mui/icons-material/Send';
+
+import Button from "@mui/material/Button";
+
+
 import "./../Login.css"
 
 const Container = styled.div`
@@ -95,14 +97,21 @@ const Login =  ()=>{
               </ol>
               <div className='login__type'> 
 
-              <GoogleLogin
-                clientId="412954107899-68euuaorrd8rvs138sa74g0fhudesc2f.apps.googleusercontent.com"
-                buttonText="Sign In with Google"
-                cookiePolicy={"single_host_origin"}
-               
-              />
+              <Button variant="text" startIcon={<Google />}   >  
+              <i className={"fab fa-facebook"}
+               />
+               </Button>
 
-    
+               <Button variant="text" startIcon={<GitHub />}   >  
+              <i className={"fab fa-facebook"}
+               />
+               </Button>
+               <Button variant="text" startIcon={<Twitter />}   >  
+              <i className={"fab fa-facebook"}
+               />
+               </Button>
+                   
+
                </div>
               
              
