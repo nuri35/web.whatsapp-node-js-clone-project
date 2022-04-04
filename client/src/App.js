@@ -6,12 +6,12 @@ import "./App.css"
 import Sidebar from './sidebar';
 import Chat from './Chat';
 import Login from "./components/Login"
-
+import { AuthContext } from "./components/Context";
 
 
 const App = () => {
 
-  let auth = true
+  const {user,ısAuthenticated,setUser,setIsAuthenticated} = useContext(AuthContext)
  
     return (
         <div className='app'>
@@ -20,7 +20,7 @@ const App = () => {
          <Router>
    
    <Routes>
-     {auth ? 
+     {ısAuthenticated ? 
      <Route  path="/"  element={<><Sidebar/><Chat/></>} />
     :
     <Route  path="/" element={<Login />} />      
