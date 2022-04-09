@@ -1,10 +1,11 @@
 const express = require("express")
+const mongoose = require("mongoose")
+require('dotenv').config();
 const app = express()
 const bodyParser = require("body-parser")
 const session = require("express-session")
 const cookieParser = require('cookie-parser')
 const cors = require("cors")
-require('dotenv').config();
 const MongoStore = require('connect-mongo')
 const authrouter = require("./src/router/authRouter") 
 const db = require("./src/db/database_config")
@@ -14,22 +15,19 @@ const passport = require("passport");
 
 db.main()
 
-
 app.use(session({
-    secret:process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:true,
-    
-  
-    store: process.env.NODE_ENV === "production" ? MongoStore.create({mongoUrl: `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin`}) : "",
+    secret:"secret",
+    resave: true,
+    store: MongoStore.create({ mongoUrl: `mongodb://${process.env.NODE_ENV}:${process.env.MONGO_DB_LOCAL}/${process.env.DB_NAME}` }),
+    saveUninitialized: true,
     cookie:{
-        secure: true,
+
         maxAge:1000 * 60 * 60 * 24 
     }//1 gun
 
 }));
 
-
+//YARIN ÖGLEN CHAT APP MERN STACKLERDEKI BAKARSIN BIRDE GİTHUBDAN BAKARSIN PASSPORT İÇİN
 
 app.use(passport.initialize());
 app.use(passport.session());
