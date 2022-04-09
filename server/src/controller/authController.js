@@ -9,6 +9,7 @@ const loginFailed = (req,res,next)=>{
     
 
 const getUserInfo = async(req,res,next)=>{
+  
     const data = req.user
     const isAuthInfo = req.isAuthenticated()
     res.json({data,isAuthInfo})
@@ -17,11 +18,10 @@ const getUserInfo = async(req,res,next)=>{
 }
 
 const logout = (req,res,next)=>{
-
     req.logout();
     req.session.destroy((err)=>{
         res.clearCookie("connect.sid") 
-        res.redirect(CLİENT_URL)
+        res.redirect(process.env.REDIRECT_OUT)
     })
   
 
