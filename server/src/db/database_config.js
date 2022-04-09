@@ -14,29 +14,13 @@ const {
      
               if(process.env.NODE_ENV === "localhost"){
                
-                await mongoose.connect(`mongodb://localhost:27017/Chat`,{
+                await mongoose.connect(`mongodb://${process.env.NODE_ENV}:${process.env.MONGO_DB_LOCAL}/${process.env.DB_NAME}`,{
                   
                     useNewUrlParser:true,
                     useUnifiedTopology:true
                 });
               }
-              
-              
-                if(process.env.NODE_ENV === "development"){ //docker için
-               
-                  await mongoose.connect(`mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin`,{ useNewUrlParser: true,
-                useUnifiedTopology: true});
-                }
-
-
-                if(process.env.NODE_ENV === "production"){
-               
-                  await mongoose.connect(`mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin`,{ useNewUrlParser: true,
-                useUnifiedTopology: true});
-                }
-    
-
-   
+          
       
           console.log(process.env.NODE_ENV + " modunda baglantı salandı");
      
