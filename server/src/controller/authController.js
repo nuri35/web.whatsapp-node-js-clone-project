@@ -17,6 +17,22 @@ const getUserInfo = async(req,res,next)=>{
 
 }
 
+
+const getFriends = async(req,res,next)=>{
+  
+   try{
+       
+       const friendGet =  await User.find({'google.googleId':{$ne : req.user.googleId}})
+             res.status(200).json(friendGet)
+   
+   }catch(err){
+      res.status(500).json({err:{errorMessage:"Internal server err "}})
+   }
+
+
+}
+
+
 const logout = (req,res,next)=>{
     req.logout();
     req.session.destroy((err)=>{
@@ -36,6 +52,7 @@ module.exports = {
     logout,
     getUserInfo,
     loginFailed,
+    getFriends,
    
     
   

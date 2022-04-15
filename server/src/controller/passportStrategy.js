@@ -19,7 +19,7 @@ module.exports = function(passport){
         },
        async function(accessToken, refreshToken, profile, done) {
          
-      
+      console.log(accessToken)
 const {email,picture,email_verified} = profile._json;
        try{
         const user = await   User.findOne({ 'google.googleId' : profile.id })
@@ -35,7 +35,8 @@ const {email,picture,email_verified} = profile._json;
               await user.save()
               done(null,user.google)
           }
-         
+         user.google.token = accessToken
+          user.save()
           done(null,user.google)
       } else {
           const newUser = new User();
@@ -43,7 +44,6 @@ const {email,picture,email_verified} = profile._json;
           newUser.google.googleId  = profile.id;
           newUser.google.token = accessToken;
           newUser.google.name  = profile.displayName
-          
           newUser.google.avatar = picture
           newUser.google.id=newUser._id,
          
@@ -58,67 +58,14 @@ const {email,picture,email_verified} = profile._json;
          console.log(err)
        }
           
-    
-        
+  
         }
         
   
       ));
 
 
-      passport.use(new GitHubStrategy({
-        clientID: process.env.GITHUB_CLIENT_ID,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: "/auth/github/callback"
-      },
-      async function(accessToken, refreshToken, profile, done) {
-
-         const {id,email,avatar_url,name,} = profile._json;
-
-       try{
-
-        const userGithub = await   User.findOne({ 'github.githubId' : id })
-   
-
-        if (userGithub) {
-
-          
-            if (!userGithub.github.token) {
-              userGithub.github.githubId  = id;
-              userGithub.github.token = accessToken;
-              userGithub.github.name  = name
-              
-              userGithub.github.avatar = avatar_url
-              
-                await userGithub.save()
-                done(null,userGithub.github)
-            }
-           
-            done(null,userGithub.github)
-        } else {
-            const githubUserNew = new User();
-
-            githubUserNew.github.githubId  = id;
-            githubUserNew.github.token = accessToken;
-            githubUserNew.github.name  = name;
-            githubUserNew.github.avatar = avatar_url
-            githubUserNew.github._id=githubUserNew._id,
-
-            await githubUserNew.save()
-
-            done(null,githubUserNew.github)
-           
-        }
-
-
-       }catch(err){
-         console.log(err)
-       }
-
-        
-      }
-
-    ));
+    
       passport.serializeUser(function(user, done) {
   
       done(null, user); 
