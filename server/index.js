@@ -1,5 +1,4 @@
 const express = require("express")
-const mongoose = require("mongoose")
 require('dotenv').config();
 const app = express()
 const bodyParser = require("body-parser")
@@ -8,6 +7,7 @@ const cookieParser = require('cookie-parser')
 const cors = require("cors")
 const MongoStore = require('connect-mongo')
 const authrouter = require("./src/router/authRouter") 
+const messengerRouter = require("./src/router/messengerRouter") 
 const db = require("./src/db/database_config")
 
 const passport = require("passport");
@@ -27,7 +27,7 @@ app.use(session({
 
 }));
 
-//YARIN ÖGLEN CHAT APP MERN STACKLERDEKI BAKARSIN BIRDE GİTHUBDAN BAKARSIN PASSPORT İÇİN
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -44,6 +44,7 @@ app.use(express.urlencoded({extended:true}))
 
 //api
 app.use("/auth",authrouter)
+app.use("/messenger",messengerRouter)
 
 
 
