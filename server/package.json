@@ -31,7 +31,8 @@
     "passport": "^0.5.2",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
-    "password": "^0.1.1"
+    "password": "^0.1.1",
+    "redis": "^4.0.6"
   },
   "devDependencies": {
     "cross-env": "^7.0.3"
