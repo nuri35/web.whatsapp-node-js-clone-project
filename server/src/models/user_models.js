@@ -13,23 +13,11 @@ const mongoose = require("mongoose")
         token : String,
         name :String,
         avatar :String,
+      
        
 
       } ,
-      github :  {
-        id:{
-            type:mongoose.ObjectId,
-          },
-        githubId :{
-            type:String,
-         
-        },
-        token : String,
-        name :String,
-        avatar :String,
-       
-
-      }
+    
   
 
    
