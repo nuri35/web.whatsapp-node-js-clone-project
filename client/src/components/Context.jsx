@@ -10,7 +10,7 @@ export default  ({children}) => {
   
   useEffect(() => {
     Axios.get("http://localhost:4000/auth/user", { withCredentials: true }).then(res => {
-     
+    
     if(res.data.isAuthInfo){
      
       setUser(res.data.data);

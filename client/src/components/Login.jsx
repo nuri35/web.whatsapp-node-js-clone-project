@@ -2,8 +2,7 @@
 import React,{useState,useRef,useCallback,useContext,useEffect} from 'react'
 import styled from "styled-components";
 import 'antd/dist/antd.css';
-
-import {Google,GitHub,Twitter} from '@mui/icons-material';
+import {Google,GitHub,Twitter,Facebook} from '@mui/icons-material';
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
@@ -77,6 +76,12 @@ background-color: white;
 
 const Login =  ()=>{
 
+
+  
+const googleLogin = () => {
+  window.open("http://localhost:4000/auth/google", "_self");
+};
+
   return (
     <>
     
@@ -97,34 +102,16 @@ const Login =  ()=>{
               </ol>
               <div className='login__type'> 
 
-              <Button variant="text" startIcon={<Google />}   >  
-              <i className={"fab fa-facebook"}
-               />
+              <Button  sx={{margin:"10px"}} variant="text" startIcon={<Google color='info'/>}   onClick={googleLogin}   >  
+             Sign in with Google
                </Button>
-
-               <Button variant="text" startIcon={<GitHub />}   >  
-              <i className={"fab fa-facebook"}
-               />
-               </Button>
-               <Button variant="text" startIcon={<Twitter />}   >  
-              <i className={"fab fa-facebook"}
-               />
-               </Button>
-                   
+             
+              
+             
 
                </div>
               
-             
-            <PhoneInput
-           country={'tr'}
-  
-                />
-               <div className='phoneSend'>
-              <Button  color="success" size='small' variant="contained" endIcon={< WhatsAppIcon />}>
-              LogIn
-          </Button>
-         
-          </div>
+    
             </Instructions>
               
              
