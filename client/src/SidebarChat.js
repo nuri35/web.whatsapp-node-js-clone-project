@@ -1,18 +1,33 @@
-import React from 'react'
+import React,{useEffect, useState} from 'react'
 import "./SidebarChat.css"
 import {Avatar,IconButton} from "@material-ui/core"
-import "./SidebarChat.css"
 
-function SidebarChat() {
-  return (
-    <div className='SidebarChat'>
 
-<Avatar src="https://joeschmoe.io/api/v1/random" />
+
+function SidebarChat(props) {
+
+
+
+return (
+    <>
+    
+   
+          <div className='SidebarChat'>
+      <Avatar src={props.friend.google.avatar} />
 <div className='sidebarChat__info'>
-<h2>Hasan yılmaz</h2>
+<h2>{props.friend.google.name}</h2>
 <p>nasıl oldun kardesim</p>
 </div>
+
     </div>
+         
+    
+  
+    
+    </>
+    
+
+   
   )
 }
 
