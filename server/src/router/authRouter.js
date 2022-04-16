@@ -7,14 +7,11 @@ require("./../controller/passportStrategy")(passport)
 
 
 
-//phone login-- daha sonra 
-
-
-//google login bu logın turu gelıstırılecek
 router.get("/user",authcontoller.getUserInfo)
 
 router.get("/failed",authcontoller.loginFailed)
 
+router.get("/getFriends",authcontoller.getFriends)
 
 router.get("/google",passport.authenticate("google",{scope:["email","profile"]})) 
 
@@ -24,15 +21,6 @@ router.get("/google/callback",passport.authenticate("google",{
 }))
 
 
-router.get('/github',
-  passport.authenticate('github', { scope: [ 'user:email' ] }));
-
-router.get('/github/callback', 
-  passport.authenticate('github', {
-    successRedirect: redirect_url,
-    failureRedirect:"/auth/failed"
-    
-}));
 
 
 //logout
