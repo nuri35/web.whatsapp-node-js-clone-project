@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState,useContext,useEffect} from 'react'
 import "./Sidebar.css"
 import ChatIcon from '@mui/icons-material/Chat';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
@@ -10,14 +10,20 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-const pages = ['Yeni grup', 'Çıkış'];
+import Chat from './Chat';
 import Toolbar from '@mui/material/Toolbar';
-
+import { AuthContext } from "./components/Context";
+import { useDispatch, useSelector } from 'react-redux'
+import {getFriends,getMessage} from "./store/action/messengerAction"
 
 function sidebar() {
-
+  const dispatch = useDispatch()
   
+  const {user} = useContext(AuthContext)
 
+  const {friends} = useSelector(state=>state.messenger)
+
+  const [currentFriend,setCurrentFriend] = useState(null)
 
   const [anchorElNav, setAnchorElNav] = useState(null);
   
@@ -30,10 +36,31 @@ function sidebar() {
   };
 
 
+  
+  const logoutHandle = async()=>{
+
+    window.open("http://localhost:4000/auth/logout", "_self");
+ 
+
+}
+
+  useEffect(() => {
+    dispatch(getFriends())
+  }, [])
+  
+ 
+ 
+  
   return (
+    <> 
     <div className='sidebar'>
         <div className='sidebar__header'>
-<Avatar src="https://joeschmoe.io/api/v1/random" />
+        <IconButton >
+            
+        <Avatar src={user.avatar} />
+       
+              </IconButton>
+             
       <div className='sidebar__headerRight'>
 
       <IconButton>
@@ -65,11 +92,14 @@ function sidebar() {
               onClose={handleCloseNavMenu}
              
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+              
+                <MenuItem  onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">Yeni grup</Typography>
                 </MenuItem>
-              ))}
+                <MenuItem  onClick={handleCloseNavMenu}>
+                <Typography textAlign="center" onClick={logoutHandle}>Çıkış</Typography>
+                </MenuItem>
+               
             </Menu>
             </Box>
             </Toolbar>
@@ -87,13 +117,31 @@ function sidebar() {
         </div>
 
         <div className='sidebar__chats'>
-        
-    <SidebarChat />
+        {
+        friends && friends.length > 0 ? friends.map(friend => 
+          <div onClick={()=> {
+            setCurrentFriend(friend) 
+            dispatch(getMessage(friend.google.id))
+          }  }>
+          <SidebarChat friend={friend}  />
+          </div>
+          ) :
+          <></>
+      }
+ 
   
 
         </div>
         
         </div>
+      
+          <Chat currentFriend={currentFriend} />
+
+       
+    
+    
+        
+          </>
   )
 }
 
