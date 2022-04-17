@@ -44,6 +44,7 @@
     "simplebar-react": "^2.3.6",
     "socket.io-client": "^4.4.1",
     "styled-components": "^5.3.5",
+    "use-sound": "^4.0.1",
     "yup": "^0.32.11"
   },
   "browserslist": {
