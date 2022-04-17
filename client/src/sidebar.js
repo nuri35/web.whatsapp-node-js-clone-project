@@ -1,4 +1,4 @@
-import React,{useState,useContext,useEffect} from 'react'
+import React,{useState,useContext,useEffect,useRef} from 'react'
 import "./Sidebar.css"
 import ChatIcon from '@mui/icons-material/Chat';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
@@ -14,15 +14,17 @@ import Chat from './Chat';
 import Toolbar from '@mui/material/Toolbar';
 import { AuthContext } from "./components/Context";
 import { useDispatch, useSelector } from 'react-redux'
-import {getFriends,getMessage} from "./store/action/messengerAction"
+import {getFriends,getMessage,ImageMessageSend} from "./store/action/messengerAction"
+import useSound from 'use-sound';
+import sendingSound from './audio/frontend_src_audio_sending.mp3';
 
 function sidebar() {
   const dispatch = useDispatch()
-  
+  const [sendingSPlay] = useSound(sendingSound);
   const {user} = useContext(AuthContext)
-
-  const {friends} = useSelector(state=>state.messenger)
-
+const scrollRef = useRef()
+  const {friends,message} = useSelector(state=>state.messenger)
+  
   const [currentFriend,setCurrentFriend] = useState(null)
 
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -47,9 +49,33 @@ function sidebar() {
   useEffect(() => {
     dispatch(getFriends())
   }, [])
+
+  
+  const imageSend = (e)=>{
+    if (e.target.files.length !== 0) {
+      sendingSPlay();
+      const imagename = e.target.files[0].name;
+   
+      const newImageName = Date.now() + imagename;
+
+      const formData = {
+        senderId:user.id,
+        imageName: newImageName,
+        reseverId:currentFriend.google.id,
+        image:e.target.files[0]
+      }
+      console.log(e.target.files)
+      dispatch(ImageMessageSend(formData));
+
+  }
+
+      }
+    
   
  
- 
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({behavior:"smooth"})
+  }, [message])
   
   return (
     <> 
@@ -135,7 +161,7 @@ function sidebar() {
         
         </div>
       
-          <Chat currentFriend={currentFriend} />
+          <Chat imageSend={imageSend} message={message} currentFriend={currentFriend} scrollRef={scrollRef}/>
 
        
     

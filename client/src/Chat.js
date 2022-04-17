@@ -6,17 +6,15 @@ import AttachFile from '@mui/icons-material/AttachFile';
 import {Avatar,IconButton} from "@material-ui/core"
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import MenuItem from '@mui/material/MenuItem';
-import SendIcon from '@mui/icons-material/Send';
+
 import Picker from 'emoji-picker-react';
 import Box from '@mui/material/Box';
-import SpeedDial from '@mui/material/SpeedDial';
+
 import Typography from '@mui/material/Typography';
 import Toolbar from '@mui/material/Toolbar';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Photo from '@mui/icons-material/Photo';
-import io from "socket.io-client";
+// import io from "socket.io-client";
 import moment from 'moment';
 import styled from "styled-components";
 import Menu from '@mui/material/Menu';
@@ -52,21 +50,20 @@ const Placeholder = styled.div`
   }
 `;
 
+const Input = styled('input')({
+  display: 'none',
+});
+
 function Chat(props) {
   const dispatch = useDispatch()
-  const {message} = useSelector(state=>state.messenger)
 
   const {user} = useContext(AuthContext)
- const socket =  useRef(io.connect("http://localhost:6500"))
+//  const socket =  useRef(io.connect("http://localhost:6500"))
 const [input,setInput] = useState("")
 const [showEmoji,setShowEmoji] = useState(false)
 
 const [anchorElNav, setAnchorElNav] = useState(null);
-const actions = [
-  { icon: <FileCopyIcon />, name: 'Belge' },
-  { icon: <Photo />, name: 'Fotograflar' },
- 
-];
+
 
 const onEmojiClick = (event, emojiObject) => {
 
@@ -108,6 +105,7 @@ const onEmojiClick = (event, emojiObject) => {
   }
 
 
+ 
 
   return (
 
@@ -170,24 +168,28 @@ const onEmojiClick = (event, emojiObject) => {
      
 
       <div className='chat__body'>
-        
-        {/* <div>
-      {messages.map((messageContent) => {
-        return (
-          <p className='chat__message chat__receiver'>
 
-         {messageContent?.text}
-          <span className='chat__timestamp'>
-          {moment(messageContent?.createdAt, "h:mm").format('h:mm')}
+      {
+props.message && props.message.length > 0 ? props.message.map(m=>
+        m.senderId === user.id ?  <p ref={props.scrollRef} className='chat__message chat__receiver'>
+      {m.message}
+      <span className='chat__timestamp'>
          
+      {moment(m.when).startOf('mini').fromNow()}
           </span>
         </p>
-
-        );
-      })}
-       </div>
-   */}
+        : 
+        <p ref={props.scrollRef} className='chat__message '>
+        {m.message}
+        <span className='chat__timestamp'>
+        {moment(m.when).startOf('mini').fromNow()}
        
+            </span>
+          </p>
+
+):""
+        }
+     
      
 
       </div>
@@ -204,47 +206,35 @@ const onEmojiClick = (event, emojiObject) => {
   }
   
       <div className='chat__footer'>
-    
+
+     
       <IconButton 
       onClick={clickEmoji}
      
       >
       <InsertEmoticonIcon />
     </IconButton>
-
+    <label htmlFor="icon-button-file">
+        <Input  onChange={props.imageSend}  id="icon-button-file" type="file" multiple />
+        <IconButton  aria-label="upload picture" component="span">
+          <AttachFile />
+        </IconButton>
+      </label>
    
-  
-    
-    <Box sx={{ transform: 'translateZ(0px)' }}>
-    <SpeedDial
-      ariaLabel="SpeedDial openIcon example"
-      sx={{ position: 'absolute', bottom: -10, right:75 }}
-      icon={<AttachFile />}
-    >
-      {actions.map((action) => (
-        <SpeedDialAction
-          key={action.name}
-          icon={action.icon}
-          tooltipTitle={action.name}
-        />
-      ))}
-    </SpeedDial>
-  </Box>
+
 
     <form>
 
     <input value={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message ' type="text" />
     <button onClick={sendMessage} type='submit'>
-    <IconButton >
-    <SendIcon />
-    </IconButton>
-     
+   
     </button>
     </form>
     <IconButton>
     <MicIcon />
     </IconButton>
 
+   
    
       </div>
       

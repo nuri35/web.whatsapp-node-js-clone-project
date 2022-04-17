@@ -57,7 +57,23 @@ export const getMessage = (id) =>{
                 }
             })
         } catch (error) {
-            console.log(error.response.data);
+            console.log(error.response);
         }
     }
+}
+
+export const ImageMessageSend = (data) => async(dispatch)=>{
+
+    try {
+        const response = await API.post('/messenger/imageMessageSend',data,{ withCredentials: true });
+        dispatch({
+            type : MESSAGE_SEND_SUCCESS,
+            payload : {
+                message : response.data.message
+            }
+        })
+    } catch (error) {
+        console.log(error.response.data)
+    }
+    
 }
