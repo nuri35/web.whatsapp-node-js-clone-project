@@ -15,7 +15,7 @@ return (
           <div className='SidebarChat'>
       <Avatar src={props.friend.google.avatar} />
 <div className='sidebarChat__info'>
-<h2>{props.friend.google.name}</h2>
+<h2 className='Fd_name'>{props.friend.google.name}</h2>
 <p>nasıl oldun kardesim</p>
 </div>
 

@@ -66,14 +66,25 @@ export const ImageMessageSend = (data) => async(dispatch)=>{
 
     try {
         const response = await API.post('/messenger/imageMessageSend',data,{ withCredentials: true });
-        dispatch({
-            type : MESSAGE_SEND_SUCCESS,
-            payload : {
-                message : response.data.message
-            }
-        })
+        if(response.data.success){
+            dispatch({
+                type : MESSAGE_SEND_SUCCESS,
+                payload : {
+                    message : response.data.message
+                }
+            })
+            return response.data
+        }else{
+            return response.data
+        }
+       
+
     } catch (error) {
+       
         console.log(error.response.data)
+       return {success:false,message:"Error"}
+       
+       
     }
     
 }

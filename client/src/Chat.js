@@ -5,19 +5,13 @@ import MicIcon from '@mui/icons-material/Mic';
 import AttachFile from '@mui/icons-material/AttachFile';
 import {Avatar,IconButton} from "@material-ui/core"
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
-import MenuItem from '@mui/material/MenuItem';
-
+import { Image,Space} from 'antd';
 import Picker from 'emoji-picker-react';
-import Box from '@mui/material/Box';
-
-import Typography from '@mui/material/Typography';
-import Toolbar from '@mui/material/Toolbar';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Photo from '@mui/icons-material/Photo';
+import {FileFilled,DownCircleFilled} from "@ant-design/icons"
+import { useSpeechRecognition } from 'react-speech-recognition';
 // import io from "socket.io-client";
 import moment from 'moment';
 import styled from "styled-components";
-import Menu from '@mui/material/Menu';
 import {messageSend} from "./store/action/messengerAction"
 import { AuthContext } from "./components/Context";
 
@@ -89,6 +83,9 @@ const onEmojiClick = (event, emojiObject) => {
   }
 
 
+
+
+
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -106,7 +103,6 @@ const onEmojiClick = (event, emojiObject) => {
 
 
  
-
   return (
 
     <> 
@@ -130,38 +126,8 @@ const onEmojiClick = (event, emojiObject) => {
     </div>
 
     <div className='chat__headerLeft'>
-      <Toolbar disableGutters>
-      <Box >
-      <IconButton  
-        onClick={handleOpenNavMenu}
-
-         >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-             
-            >
-              
-                <MenuItem  onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">Mesajları Sil</Typography>
-                </MenuItem>
-               
-            </Menu>
-            </Box>
-            </Toolbar>
+     
+           
       </div>
       </div>
 
@@ -172,15 +138,87 @@ const onEmojiClick = (event, emojiObject) => {
       {
 props.message && props.message.length > 0 ? props.message.map(m=>
         m.senderId === user.id ?  <p ref={props.scrollRef} className='chat__message chat__receiver'>
-      {m.message}
+ 
+ { m.message.text === "" && m.message.file === ""  ? 
+     <Space size={12}>
+     <Image
+       width={200}
+       src={`http://localhost:4000/files/${m.message.image}`}
+     
+     />
+   
+   </Space> 
+     
+     : m.message.text === "" && m.message.image === "" ?
+        <div>   
+ <span style={{ padding:"10px" }}>
+ <FileFilled style={{ fontSize: '24px' }}/>
+ </span>
+
+ <span>
+   {m.message.file}
+
+ </span>
+ <span onClick={() => console.log("tıklandı")} >
+ <IconButton 
+     
+     
+      >
+      <DownCircleFilled />
+    </IconButton>
+ </span>
+          </div> 
+    :
+     m.message.text
+
+     }
+  
+      
+
+    
       <span className='chat__timestamp'>
          
       {moment(m.when).startOf('mini').fromNow()}
           </span>
         </p>
         : 
+
         <p ref={props.scrollRef} className='chat__message '>
-        {m.message}
+          { m.message.text === "" && m.message.file === ""  ? 
+     <Space size={12}>
+     <Image
+       width={200}
+       src={`http://localhost:4000/files/${m.message.image}`}
+     
+     />
+   
+   </Space> 
+     
+     : m.message.text === "" && m.message.image === "" ?
+        <div>   
+ <span style={{ padding:"10px" }}>
+ <FileFilled style={{ fontSize: '24px' }}/>
+ </span>
+
+ <span>
+   {m.message.file}
+
+ </span>
+ <span onClick={() => console.log("tıklandı")} >
+ <IconButton 
+     
+     
+      >
+      <DownCircleFilled />
+    </IconButton>
+ </span>
+          </div> 
+    :
+     m.message.text
+
+     }
+  
+      
         <span className='chat__timestamp'>
         {moment(m.when).startOf('mini').fromNow()}
        
@@ -189,8 +227,8 @@ props.message && props.message.length > 0 ? props.message.map(m=>
 
 ):""
         }
-     
-     
+
+
 
       </div>
      
@@ -215,7 +253,7 @@ props.message && props.message.length > 0 ? props.message.map(m=>
       <InsertEmoticonIcon />
     </IconButton>
     <label htmlFor="icon-button-file">
-        <Input  onChange={props.imageSend}  id="icon-button-file" type="file" multiple />
+        <Input name='file' onChange={props.imageSend}  id="icon-button-file" type="file"  />
         <IconButton  aria-label="upload picture" component="span">
           <AttachFile />
         </IconButton>
@@ -225,12 +263,15 @@ props.message && props.message.length > 0 ? props.message.map(m=>
 
     <form>
 
-    <input value={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message ' type="text" />
+    <input value={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message ' type="text" 
+     />
+
     <button onClick={sendMessage} type='submit'>
    
     </button>
     </form>
-    <IconButton>
+
+    <IconButton >
     <MicIcon />
     </IconButton>
 

@@ -2,7 +2,7 @@ import React,{useState,useContext,useEffect,useRef} from 'react'
 import "./Sidebar.css"
 import ChatIcon from '@mui/icons-material/Chat';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import DonutLargeIcon from '@mui/icons-material/DonutLarge';
+
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {Avatar,IconButton} from "@material-ui/core"
 import SidebarChat from "./SidebarChat"
@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {getFriends,getMessage,ImageMessageSend} from "./store/action/messengerAction"
 import useSound from 'use-sound';
 import sendingSound from './audio/frontend_src_audio_sending.mp3';
+import { message as antMessage} from 'antd';
 
 function sidebar() {
   const dispatch = useDispatch()
@@ -38,6 +39,9 @@ const scrollRef = useRef()
   };
 
 
+  const error = (value) => {
+    antMessage.error(value);
+  };
   
   const logoutHandle = async()=>{
 
@@ -51,24 +55,43 @@ const scrollRef = useRef()
   }, [])
 
   
-  const imageSend = (e)=>{
-    if (e.target.files.length !== 0) {
+  const imageSend = async (e)=>{
+    if (e.target.files.length === 1) {
       sendingSPlay();
-      const imagename = e.target.files[0].name;
+      const data = new FormData()
+     
+      
+      data.append("senderId", user.id);
+      data.append("name", e.target.files.name);
+      data.append("reseverId", currentFriend.google.id);
+      data.append("file", e.target.files[0]);
+    
+    
+    let dataState =  await dispatch(ImageMessageSend(data));
    
-      const newImageName = Date.now() + imagename;
-
-      const formData = {
-        senderId:user.id,
-        imageName: newImageName,
-        reseverId:currentFriend.google.id,
-        image:e.target.files[0]
-      }
-      console.log(e.target.files)
-      dispatch(ImageMessageSend(formData));
+        if(!dataState?.success){
+          error(dataState?.message)
+        }
 
   }
 
+
+      }
+
+      const search=async (e)=>{
+        const getFriendClass = document.getElementsByClassName('hover-friend');
+       
+         const frienNameClass = document.getElementsByClassName('Fd_name');
+      
+        for (var i = 0; i < getFriendClass.length, i < frienNameClass.length; i++) {
+            let text = frienNameClass[i].innerText.toLowerCase();
+           
+            if (text.indexOf(e.target.value.toLowerCase()) > -1) {
+                getFriendClass[i].style.display = '';
+            } else {
+                getFriendClass[i].style.display = 'none';
+            }
+        }
       }
     
   
@@ -89,9 +112,7 @@ const scrollRef = useRef()
              
       <div className='sidebar__headerRight'>
 
-      <IconButton>
-        <ChatIcon />
-      </IconButton>
+     
 
       
       <Toolbar disableGutters>
@@ -137,7 +158,7 @@ const scrollRef = useRef()
       <div className='sidebar__searchContainer'>
 
     <SearchOutlinedIcon fontSize='large'/>
-    <input placeholder='Search ' type="text" />
+    <input onChange={search} placeholder='Search ' type="text" />
       </div>
 
         </div>
@@ -145,7 +166,7 @@ const scrollRef = useRef()
         <div className='sidebar__chats'>
         {
         friends && friends.length > 0 ? friends.map(friend => 
-          <div onClick={()=> {
+          <div className='hover-friend' onClick={()=> {
             setCurrentFriend(friend) 
             dispatch(getMessage(friend.google.id))
           }  }>
