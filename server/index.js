@@ -9,6 +9,7 @@ const MongoStore = require('connect-mongo')
 const authrouter = require("./src/router/authRouter") 
 const messengerRouter = require("./src/router/messengerRouter") 
 const db = require("./src/db/database_config")
+const path = require("path")
 
 const passport = require("passport");
 
@@ -28,7 +29,7 @@ app.use(session({
 }));
 
 
-
+app.use("/files", express.static(path.resolve(__dirname,"./uploads/files")));
 app.use(passport.initialize());
 app.use(passport.session());
 
