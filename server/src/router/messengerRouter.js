@@ -1,11 +1,14 @@
 const router = require("express").Router()
 const messengerController = require("../controller/messengerController")
 
+const uploadfiles = require("../middleweare/multer")
+
+
 
 
 
 router.post("/sendMessage",messengerController.messageSend)
 router.get("/getMessage/:id",messengerController.getMessageByUser)
-router.post("/imageMessageSend",messengerController.messageSendİmage)
+router.post("/imageMessageSend",uploadfiles.single("file"),messengerController.messageSendFile)
 
 module.exports=router

@@ -1,6 +1,7 @@
 var client = require('./../db/redis_config');
 const shortid = require('shortid');
 const _ = require("lodash")
+const path = require("path");
 
 const messageSend = async(req,res,next)=>{
 
@@ -9,17 +10,32 @@ const messageSend = async(req,res,next)=>{
          await client.hSet(`${req.body.reseverId}`,
         shortid.generate(),
         JSON.stringify({
-            message:req.body.messageContent,
+            message:{
+                text:req.body.messageContent,
+                file:"",
+                image:""
+            },
             when:Date.now(),
             senderId:req.body.senderId
         })
 
         );
-        res.status(200).json({message:{message:req.body.messageContent,when:Date.now(),senderId:req.body.senderId}})
+        res.status(200).json({message:{
+            message:{
+                text:req.body.messageContent,
+                file:"",
+                image:""
+            },
+            when:Date.now(),
+            senderId:req.body.senderId
+
+        }
+          
+        })
        
 
     }catch(err){
-        console.log(err)
+       
         res.status(500).json({err:{errorMessage:"Internal server err "}})
     }
 }
@@ -62,13 +78,79 @@ const getMessageByUser = async(req,res,next)=>{
     }
 }
 
-const messageSendİmage = async(req,res,next)=>{
+const messageSendFile = async (req,res,next)=>{
 
     try{
       
-        console.log(req.body)
+
+        if(req.file){
+            const filetypesImage = /jpeg|jpg|png/;
+            const extnameControl = filetypesImage.test(path.extname(req.file.originalname).toLowerCase());
+
+            if(!extnameControl){
+
+                    
+                await client.hSet(`${req.body.reseverId}`,
+                shortid.generate(),
+                JSON.stringify({
+                    message:{
+                        text:"",
+                        image:"",
+                        file:req.file.filename
+                    },
+                    when:Date.now(),
+                    senderId:req.body.senderId
+                })
+        
+                );
+            res.json({success:true,message:{
+                message:{
+                    text:"",
+                    image:"",
+                    file:req.file.filename
+                },
+                when:Date.now(),
+                senderId:req.body.senderId
+            }
+            
+            }) 
+        
+
+
+            }else{
+                await client.hSet(`${req.body.reseverId}`,
+                shortid.generate(),
+                JSON.stringify({
+                    message:{
+                        text:"",
+                        file:"",
+                        image:req.file.filename
+                    },
+                    when:Date.now(),
+                    senderId:req.body.senderId
+                })
+        
+                );
+            res.json({success:true,message:{
+                message:{
+                    text:"",
+                    file:"",
+                    image:req.file.filename
+                },
+                when:Date.now(),
+                senderId:req.body.senderId
+            }
+            
+            }) 
+            }
+
+
+        }else{
+            res.json({success:false,message:"Invalid files try again "})
+        }
+     
     }catch(err){
-       
+
         res.status(500).json({err:{errorMessage:"Internal server err "}})
     }
 }
@@ -77,5 +159,5 @@ const messageSendİmage = async(req,res,next)=>{
 module.exports = {
    messageSend,
    getMessageByUser,
-   messageSendİmage,
+   messageSendFile,
 }
