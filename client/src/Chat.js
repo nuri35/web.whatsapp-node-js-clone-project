@@ -8,13 +8,14 @@ import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import { Image,Space} from 'antd';
 import Picker from 'emoji-picker-react';
 import {FileFilled,DownCircleFilled} from "@ant-design/icons"
-import { useSpeechRecognition } from 'react-speech-recognition';
+
 // import io from "socket.io-client";
 import moment from 'moment';
 import styled from "styled-components";
 import {messageSend} from "./store/action/messengerAction"
 import { AuthContext } from "./components/Context";
-
+import axios from "axios"
+import fileDownload from 'js-file-download'
 moment.locale("tr")
 
 
@@ -59,6 +60,7 @@ const [showEmoji,setShowEmoji] = useState(false)
 const [anchorElNav, setAnchorElNav] = useState(null);
 
 
+
 const onEmojiClick = (event, emojiObject) => {
 
 
@@ -74,8 +76,6 @@ const onEmojiClick = (event, emojiObject) => {
       messageContent : input?input:"❤️"
     }
   
-   
-
     dispatch(messageSend(dataSend))
 
     
@@ -102,6 +102,24 @@ const onEmojiClick = (event, emojiObject) => {
   }
 
 
+const download = (value)=>{
+  const data = {
+    whichFile:value,
+    whoReseverId:props.currentFriend.google.id
+    
+  }
+  axios({
+    url:`http://localhost:4000/download`,
+    method:"POST",
+    responseType:"blob",
+    data,
+    withCredentials:true
+  }).then((res)=>{
+  fileDownload(res.data,`${value}`)
+  }).catch((err) =>{
+    console.log(err)
+  })
+}
  
   return (
 
@@ -159,7 +177,10 @@ props.message && props.message.length > 0 ? props.message.map(m=>
    {m.message.file}
 
  </span>
- <span onClick={() => console.log("tıklandı")} >
+ <span onClick={()=>{
+  
+  download(m.message.file)
+ }} >
  <IconButton 
      
      
@@ -204,7 +225,10 @@ props.message && props.message.length > 0 ? props.message.map(m=>
    {m.message.file}
 
  </span>
- <span onClick={() => console.log("tıklandı")} >
+ <span  onClick={async ()=>{
+   setCurrentFile(m.message.file)
+   dowloandFile()
+ }} >
  <IconButton 
      
      
@@ -278,7 +302,7 @@ props.message && props.message.length > 0 ? props.message.map(m=>
    
    
       </div>
-      
+    
       </div>
 
   }
