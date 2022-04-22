@@ -5,6 +5,7 @@ import App from "./App.js"
 import AuthProvider from './components/Context';
 import {Provider} from "react-redux"
 import store from "./store"
+import 'regenerator-runtime/runtime'
 
 
 ReactDOM.render(

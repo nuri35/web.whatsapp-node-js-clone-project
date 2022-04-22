@@ -5,9 +5,11 @@ import MicIcon from '@mui/icons-material/Mic';
 import AttachFile from '@mui/icons-material/AttachFile';
 import {Avatar,IconButton} from "@material-ui/core"
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
-import { Image,Space} from 'antd';
+import { Image,Space,Input} from 'antd';
+
 import Picker from 'emoji-picker-react';
 import {FileFilled,DownCircleFilled} from "@ant-design/icons"
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 // import io from "socket.io-client";
 import moment from 'moment';
@@ -22,6 +24,7 @@ moment.locale("tr")
 const user = {
   id:1234
 }
+
 
 
 const ChatPlaceholder = styled.img`
@@ -45,7 +48,7 @@ const Placeholder = styled.div`
   }
 `;
 
-const Input = styled('input')({
+const InputDıv = styled('input')({
   display: 'none',
 });
 
@@ -68,21 +71,51 @@ const onEmojiClick = (event, emojiObject) => {
 };
 
   const sendMessage = (e)=>{
-    e.preventDefault();
-    const dataSend = {
-      senderId:user.id,
-      SenderUser :user.name,
-      reseverId : props.currentFriend.google.id,
-      messageContent : input?input:"❤️"
-    }
-  
-    dispatch(messageSend(dataSend))
+   
+ 
+    
+    if(transcript){
+      const count = (transcript.match(/mesajı ilet/g) || []).length;
 
     
-    setInput("")
+      for (let i = 0; i < count; i++) {
+       var messContent =   transcript.replace(/mesajı ilet/i,"");
+       
+      }
+
+
+      const dataSend = {
+        senderId:user.id,
+        SenderUser :user.name,
+        reseverId : props.currentFriend.google.id,
+        messageContent : transcript?messContent: "❤️"
+      }
+    
+      dispatch(messageSend(dataSend))
+  
+        setInput("")
+
+
+    }else{
+      e.preventDefault();
+      const dataSend = {
+        senderId:user.id,
+        SenderUser :user.name,
+        reseverId : props.currentFriend.google.id,
+        messageContent : input?input: "❤️"
+      }
+    
+      dispatch(messageSend(dataSend))
+  
+        setInput("")
+    }
+     
+    
+  
+    
   }
 
-
+  
 
 
 
@@ -120,7 +153,51 @@ const download = (value)=>{
     console.log(err)
   })
 }
- 
+
+
+const commands = [
+  {
+    command: ["mesajı ilet"],
+    callback: () => {
+      sendMessage()
+      SpeechRecognition.stopListening()
+      resetTranscript()
+    },
+    
+    
+  },
+
+  {
+    command: 'mesajı sil',
+    callback: () => {
+      resetTranscript()
+    },
+    
+    
+  },
+
+
+]
+
+
+
+let { transcript,resetTranscript } = useSpeechRecognition({commands})
+
+const speaking = ()=>{
+
+  const ctx = new(window.AudioContext || window.webkitAudioContext)()
+  const osc  = ctx.createOscillator()
+  
+  osc.connect(ctx.destination);
+  osc.start(0)
+  osc.stop(2)
+  
+  SpeechRecognition.startListening({language:"tr",continuous:true})
+
+  
+}
+
+
   return (
 
     <> 
@@ -277,7 +354,7 @@ props.message && props.message.length > 0 ? props.message.map(m=>
       <InsertEmoticonIcon />
     </IconButton>
     <label htmlFor="icon-button-file">
-        <Input name='file' onChange={props.imageSend}  id="icon-button-file" type="file"  />
+        <InputDıv name='file' onChange={props.imageSend}  id="icon-button-file" type="file"  />
         <IconButton  aria-label="upload picture" component="span">
           <AttachFile />
         </IconButton>
@@ -285,24 +362,39 @@ props.message && props.message.length > 0 ? props.message.map(m=>
    
 
 
-    <form>
-
-    <input value={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message ' type="text" 
-     />
-
-    <button onClick={sendMessage} type='submit'>
-   
-    </button>
+  
+    
+    {
+      transcript ?  
+      <form>
+      <Input  value={transcript}  name="voiceAssistan" placeholder='Type a message ' type="text"  />
+    
     </form>
+:
+<form>
+<Input value={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message ' type="text"      />
+     <button onClick={sendMessage} type='submit'>
+   
+     </button>
+     </form>
+    }
+   
 
-    <IconButton >
+
+    
+
+    <IconButton onClick={speaking} >
     <MicIcon />
     </IconButton>
 
    
    
       </div>
+   
+     
+     
     
+   
       </div>
 
   }
