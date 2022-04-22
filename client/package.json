@@ -45,6 +45,7 @@
     "react-speech-recognition": "^3.9.0",
     "redux": "^4.1.2",
     "redux-thunk": "^2.4.1",
+    "regenerator-runtime": "^0.13.9",
     "simplebar-react": "^2.3.6",
     "socket.io-client": "^4.4.1",
     "styled-components": "^5.3.5",
