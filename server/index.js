@@ -20,7 +20,7 @@ db.main()
 app.use(session({
     secret:"secret",
     resave: true,
-    store: MongoStore.create({ mongoUrl: `mongodb://${process.env.NODE_ENV}:${process.env.MONGO_DB_LOCAL}/${process.env.DB_NAME}` }),
+    store: MongoStore.create({ mongoUrl: `mongodb://localhost:${process.env.MONGO_DB_LOCAL}/${process.env.DB_NAME}` }),
     saveUninitialized: true,
     cookie:{
 

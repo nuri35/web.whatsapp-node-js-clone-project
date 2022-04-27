@@ -14,7 +14,7 @@ const {
      
               if(process.env.NODE_ENV === "localhost"){
                
-                await mongoose.connect(`mongodb://${process.env.NODE_ENV}:${process.env.MONGO_DB_LOCAL}/${process.env.DB_NAME}`,{
+                await mongoose.connect(`mongodb://localhost:${process.env.MONGO_DB_LOCAL}/${process.env.DB_NAME}`,{
                   
                     useNewUrlParser:true,
                     useUnifiedTopology:true

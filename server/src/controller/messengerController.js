@@ -1,12 +1,13 @@
-var client = require('./../db/redis_config');
+const { createConnectedClient, clientClose} = require('./../db/redis_config');
 const shortid = require('shortid');
 const _ = require("lodash")
 const path = require("path");
 
+
 const messageSend = async(req,res,next)=>{
 
     try{
-        
+        const client = await createConnectedClient()
          await client.hSet(`${req.body.reseverId}`,
         shortid.generate(),
         JSON.stringify({
@@ -20,6 +21,7 @@ const messageSend = async(req,res,next)=>{
         })
 
         );
+        await clientClose()
         res.status(200).json({message:{
             message:{
                 text:req.body.messageContent,
@@ -32,8 +34,8 @@ const messageSend = async(req,res,next)=>{
         }
           
         })
-       
 
+    
     }catch(err){
        
         res.status(500).json({err:{errorMessage:"Internal server err "}})
@@ -42,8 +44,9 @@ const messageSend = async(req,res,next)=>{
 
 
 const getMessageByUser = async(req,res,next)=>{
-//redis get 
+
     try{
+        const client = await createConnectedClient()
         let messagebyuser = []
         const getMessage = await client.hVals(req.params.id);
         
@@ -68,6 +71,8 @@ const getMessageByUser = async(req,res,next)=>{
                 messagebyuser.push(mfilt)
             }
         })
+    await clientClose()
+
         
     res.status(200).json({message:_.orderBy(messagebyuser,"when","asc")})
     
@@ -84,6 +89,7 @@ const messageSendFile = async (req,res,next)=>{
       
 
         if(req.file){
+            const client = await createConnectedClient()
             const filetypesImage = /jpeg|jpg|png/;
             const extnameControl = filetypesImage.test(path.extname(req.file.originalname).toLowerCase());
 
@@ -103,6 +109,7 @@ const messageSendFile = async (req,res,next)=>{
                 })
         
                 );
+                
             res.json({success:true,message:{
                 message:{
                     text:"",
@@ -131,6 +138,7 @@ const messageSendFile = async (req,res,next)=>{
                 })
         
                 );
+               
             res.json({success:true,message:{
                 message:{
                     text:"",
@@ -143,11 +151,14 @@ const messageSendFile = async (req,res,next)=>{
             
             }) 
             }
+       
+            await clientClose()
 
 
         }else{
             res.json({success:false,message:"Invalid files try again "})
         }
+        
      
     }catch(err){
 
