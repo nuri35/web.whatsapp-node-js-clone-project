@@ -2,7 +2,7 @@ import React,{useState,useContext,useEffect,useRef} from 'react'
 import "./Sidebar.css"
 import ChatIcon from '@mui/icons-material/Chat';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-
+import AvatarGroup from '@mui/material/AvatarGroup';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {Avatar,IconButton} from "@material-ui/core"
 import SidebarChat from "./SidebarChat"
@@ -13,17 +13,20 @@ import Typography from '@mui/material/Typography';
 import Chat from './Chat';
 import Toolbar from '@mui/material/Toolbar';
 import { AuthContext } from "./components/Context";
+import ActiveFriend from "./components/ActiveFriend";
 import { useDispatch, useSelector } from 'react-redux'
 import {getFriends,getMessage,ImageMessageSend} from "./store/action/messengerAction"
 import useSound from 'use-sound';
 import sendingSound from './audio/frontend_src_audio_sending.mp3';
 import { message as antMessage} from 'antd';
+import io from "socket.io-client";
 
 function sidebar() {
   const dispatch = useDispatch()
   const [sendingSPlay] = useSound(sendingSound);
   const {user} = useContext(AuthContext)
 const scrollRef = useRef()
+const socket =  useRef()
   const {friends,message} = useSelector(state=>state.messenger)
   
   const [currentFriend,setCurrentFriend] = useState(null)
@@ -37,6 +40,29 @@ const scrollRef = useRef()
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
+
+  const [activeUser, setActiveUser] = useState([]);
+
+ useEffect(() => {
+   socket.current = io.connect("http://localhost:6500")
+ 
+ }, [])
+
+ useEffect(() => {
+  socket.current.emit("addUserLive",user.id,user)
+
+}, [])
+
+useEffect(() => {
+  socket.current.on("getUser",(users)=>{
+    const filterUser = users.filter(u => u.userId !== user.id);
+    setActiveUser(filterUser);
+   
+
+  })
+
+}, [])
+
 
 
   const error = (value) => {
@@ -153,7 +179,11 @@ const scrollRef = useRef()
       </div>
 
         </div>
-
+        <div className="active-friends">
+                    {
+   activeUser && activeUser.length > 0 ? activeUser.map(u => <ActiveFriend setCurrentFriend={setCurrentFriend} user={u} />) : ''
+                  }
+                        </div>
         <div className='sidebar__search'>
       <div className='sidebar__searchContainer'>
 
@@ -161,7 +191,12 @@ const scrollRef = useRef()
     <input onChange={search} placeholder='Search ' type="text" />
       </div>
 
+ 
+
         </div>
+
+
+       
 
         <div className='sidebar__chats'>
         {

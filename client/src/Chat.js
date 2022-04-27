@@ -6,14 +6,14 @@ import AttachFile from '@mui/icons-material/AttachFile';
 import {Avatar,IconButton} from "@material-ui/core"
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import { Image,Space,Input} from 'antd';
-
 import Picker from 'emoji-picker-react';
 import {FileFilled,DownCircleFilled} from "@ant-design/icons"
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-
-// import io from "socket.io-client";
+import io from "socket.io-client";
 import moment from 'moment';
 import styled from "styled-components";
+import { styled as styl } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
 import {messageSend} from "./store/action/messengerAction"
 import { AuthContext } from "./components/Context";
 import axios from "axios"
@@ -21,11 +21,34 @@ import fileDownload from 'js-file-download'
 moment.locale("tr")
 
 
-const user = {
-  id:1234
-}
-
-
+const StyledBadge = styl(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: '#44b700',
+    color: '#44b700',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    '&::after': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      animation: 'ripple 1.2s infinite ease-in-out',
+      border: '1px solid currentColor',
+      content: '""',
+    },
+  },
+  '@keyframes ripple': {
+    '0%': {
+      transform: 'scale(.8)',
+      opacity: 1,
+    },
+    '100%': {
+      transform: 'scale(2.4)',
+      opacity: 0,
+    },
+  },
+}));
 
 const ChatPlaceholder = styled.img`
   width: 240px;
@@ -56,7 +79,17 @@ function Chat(props) {
   const dispatch = useDispatch()
 
   const {user} = useContext(AuthContext)
-//  const socket =  useRef(io.connect("http://localhost:6500"))
+ const socket =  useRef()
+ const [activeUser, setActiveUser] = useState([]);
+
+//  useEffect(() => {
+//    socket.current = io.connect("http://localhost:6500")
+ 
+//  }, [])
+
+
+
+ 
 const [input,setInput] = useState("")
 const [showEmoji,setShowEmoji] = useState(false)
 
@@ -114,9 +147,6 @@ const onEmojiClick = (event, emojiObject) => {
   
     
   }
-
-  
-
 
 
   const handleOpenNavMenu = (event) => {
@@ -213,7 +243,14 @@ const speaking = ()=>{
     <div className='chat'>
     <div className='chat__header'>
     
-    <Avatar src={ props.currentFriend.google.avatar} />
+    <StyledBadge
+        overlap="circular"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        variant="dot"
+      >
+        <Avatar src={ props.currentFriend.google.avatar} />
+      </StyledBadge>
+  
 
     <div className='chat__headerInfo'>
     <h3>{props.currentFriend.google.name}</h3>
@@ -271,8 +308,6 @@ props.message && props.message.length > 0 ? props.message.map(m=>
 
      }
   
-      
-
     
       <span className='chat__timestamp'>
          
