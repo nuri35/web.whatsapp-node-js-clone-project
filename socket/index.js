@@ -1,8 +1,6 @@
 
 const { Server } = require("socket.io");
 require('dotenv').config();
-
-
 const io = new Server(process.env.SOCKET_PORT,{
 
     cors:{
@@ -15,48 +13,38 @@ const io = new Server(process.env.SOCKET_PORT,{
 });
 
 
+
 let users = [];
 
-const addUser = (userId, socketId) => {
-  !users.some((user) => user.userId === userId) &&
-    users.push({ userId, socketId });
-};
+const addUser = (userId,socketId,userInfo) =>{
+    
+    const checkUser = users.some(u=>u.userId === userId);
 
+    if(!checkUser){
+        users.push({userId,socketId,userInfo});
+    }
+}
 
-const removeUser = (socketId) => {
-    users = users.filter((user) => user.socketId !== socketId);
-  };
-  
-
-
-const getUser = (userId) => {
-    return users.find((user) => user.userId === userId);
-  };
-
-
+const userRemove = (socketId) =>{
+  users = users.filter(u=>u.socketId !== socketId);
+}
 
 io.on('connection', (socket) => {
- 
-    socket.on("addUser", (userId) => {
-        addUser(userId, socket.id);
-        io.emit("getUsers", users);
-      });
-    
-      //send and get message
-      socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-        // const user = getUser(receiverId);
-        
-        io.emit("getMessage", {
-          senderId,
-          text,
-        });
-      });
 
+  console.log(socket.id + " socket running")
 
-  socket.on("disconnect", () => {
-    console.log("a user disconnected! " + socket.id);
-    removeUser(socket.id);
-    io.emit("getUsers", users);
+  socket.on("addUserLive", (userId, userInfo) => {
+    addUser(userId,socket.id,userInfo);
+    io.emit('getUser',users);
+  
+   
   });
+  
+ 
+  socket.on('disconnect',()=>{
+    console.log('user disconnect....');
+    userRemove(socket.id);
+    io.emit('getUser',users)
+})
 
   });
