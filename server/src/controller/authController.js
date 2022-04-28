@@ -21,8 +21,8 @@ const getUserInfo = async(req,res,next)=>{
 const getFriends = async(req,res,next)=>{
   
    try{
-       
-       const friendGet =  await User.find({'google.googleId':{$ne : req.user.googleId}})
+    
+       const friendGet =  await User.find({_id:{$ne : req.user.id}})
              res.status(200).json(friendGet)
    
    }catch(err){
