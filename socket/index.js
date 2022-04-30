@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
 
   socket.on("sendMessage", (data) => {
     const user = findFriend(data.reseverId);
-   
+  
     if(user !== undefined){
      
         socket.to(user.socketId).emit('getMessage',data)
