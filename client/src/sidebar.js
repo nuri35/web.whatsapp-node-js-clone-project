@@ -17,9 +17,13 @@ import ActiveFriend from "./components/ActiveFriend";
 import { useDispatch, useSelector } from 'react-redux'
 import {getFriends,getMessage,ImageMessageSend} from "./store/action/messengerAction"
 import useSound from 'use-sound';
+import moment from 'moment';
 import sendingSound from './audio/frontend_src_audio_sending.mp3';
 import { message as antMessage} from 'antd';
 import io from "socket.io-client";
+import path from "path"
+moment.locale("tr")
+
 
 function sidebar() {
   const dispatch = useDispatch()
@@ -30,7 +34,8 @@ const socket =  useRef()
   const {friends,message} = useSelector(state=>state.messenger)
   
   const [currentFriend,setCurrentFriend] = useState(null)
-
+  const [socketMessage,setSocketMessage] = useState("")
+  const [typingMessage, setTypingMessage] = useState('')
   const [anchorElNav, setAnchorElNav] = useState(null);
   
   const handleOpenNavMenu = (event) => {
@@ -49,6 +54,7 @@ const socket =  useRef()
  }, [])
 
  useEffect(() => {
+
   socket.current.emit("addUserLive",user.id,user)
 
 }, [])
@@ -58,11 +64,43 @@ useEffect(() => {
     const filterUser = users.filter(u => u.userId !== user.id);
     setActiveUser(filterUser);
    
-
   })
 
 }, [])
 
+useEffect(() => {
+  
+  socket.current.on("getMessage",(data)=>{
+    setSocketMessage(data)
+  })
+ }, [])
+
+ useEffect(() => {
+  
+  socket.current.on("typingMessageGet",(data)=>{
+    setTypingMessage(data)
+  })
+ }, [])
+
+
+
+ useEffect(() => {
+  if(socketMessage && currentFriend){
+ 
+   
+    if(socketMessage.senderId === currentFriend._id && socketMessage.reseverId === user.id ){
+
+      dispatch({
+        type :"SOCKET_MESSAGE",
+        payload : {
+            message : socketMessage
+        }
+    })
+    }
+
+  }
+  setSocketMessage("")
+}, [socketMessage])
 
 
   const error = (value) => {
@@ -80,20 +118,35 @@ useEffect(() => {
     dispatch(getFriends())
   }, [])
 
-  
+
+
+
   const imageSend = async (e)=>{
     if (e.target.files.length === 1) {
       sendingSPlay();
+
+     
       const data = new FormData()
      
-      
       data.append("senderId", user.id);
-      data.append("name", e.target.files.name);
+      data.append("name", e.target.files[0].name);
       data.append("reseverId", currentFriend.google.id);
       data.append("file", e.target.files[0]);
     
     
     let dataState =  await dispatch(ImageMessageSend(data));
+
+    socket.current.emit("sendMessage",({
+      senderId:user.id,
+      when:Date.now(),
+      reseverId : currentFriend._id,
+      message:{
+        text: "",
+        image: {content:dataState.message.message.image.content},
+      
+    },
+    
+    }))
    
         if(!dataState?.success){
           error(dataState?.message)
@@ -217,7 +270,13 @@ useEffect(() => {
         
         </div>
       
-          <Chat imageSend={imageSend} message={message} currentFriend={currentFriend} scrollRef={scrollRef}/>
+          <Chat  imageSend={imageSend} message={message}
+           currentFriend={currentFriend} 
+           scrollRef={scrollRef} 
+           activeUser={activeUser}
+           typingMessage={typingMessage} 
+
+          />
 
        
     

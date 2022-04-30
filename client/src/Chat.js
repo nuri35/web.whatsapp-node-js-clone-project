@@ -1,11 +1,12 @@
 import React, { useState,useEffect,useRef ,useContext} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import "./Chat.css"
+import "./message.scss"
 import MicIcon from '@mui/icons-material/Mic';
 import AttachFile from '@mui/icons-material/AttachFile';
 import {Avatar,IconButton} from "@material-ui/core"
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
-import { Image,Space,Input} from 'antd';
+import { Image,Space,Input, Typography} from 'antd';
 import Picker from 'emoji-picker-react';
 import {FileFilled,DownCircleFilled} from "@ant-design/icons"
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
@@ -79,17 +80,19 @@ function Chat(props) {
   const dispatch = useDispatch()
 
   const {user} = useContext(AuthContext)
- const socket =  useRef()
- const [activeUser, setActiveUser] = useState([]);
+  const socket =  useRef()
 
-//  useEffect(() => {
-//    socket.current = io.connect("http://localhost:6500")
+
+
+ useEffect(() => {
+   socket.current = io.connect("http://localhost:6500")
+
+ }, [])
+
+
  
-//  }, [])
 
 
-
- 
 const [input,setInput] = useState("")
 const [showEmoji,setShowEmoji] = useState(false)
 
@@ -103,27 +106,38 @@ const onEmojiClick = (event, emojiObject) => {
   setInput(input.concat(emojiObject.emoji))
 };
 
+
   const sendMessage = (e)=>{
    
- 
-    
+
     if(transcript){
       const count = (transcript.match(/mesajı ilet/g) || []).length;
 
     
       for (let i = 0; i < count; i++) {
-       var messContent =   transcript.replace(/mesajı ilet/i,"");
+       var messContent =   transcript.replace(/mesajı ilet/g,"");
        
       }
-
 
       const dataSend = {
         senderId:user.id,
         SenderUser :user.name,
-        reseverId : props.currentFriend.google.id,
-        messageContent : transcript?messContent: "❤️"
+        reseverId : props.currentFriend._id,
+        messageContent : messContent
       }
     
+      socket.current.emit("sendMessage",({
+        senderId:user.id,
+        when:Date.now(),
+        reseverId :props.currentFriend._id,
+        message:{
+          text: messContent,
+          file:"",
+          image:""
+      },
+      
+      }))
+
       dispatch(messageSend(dataSend))
   
         setInput("")
@@ -134,9 +148,27 @@ const onEmojiClick = (event, emojiObject) => {
       const dataSend = {
         senderId:user.id,
         SenderUser :user.name,
-        reseverId : props.currentFriend.google.id,
+        reseverId : props.currentFriend._id,
         messageContent : input?input: "❤️"
       }
+
+      socket.current.emit("sendMessage",({
+        senderId:user.id,
+        when:Date.now(),
+        reseverId : props.currentFriend._id,
+        message:{
+          text: input?input: "❤️",
+          file:"",
+          image:""
+      },
+      
+      }))
+
+      socket.current.emit('typingMessage', {
+        senderId: user.id,
+        reseverId: props.currentFriend._id,
+        msg: ""
+    })
     
       dispatch(messageSend(dataSend))
   
@@ -165,24 +197,7 @@ const onEmojiClick = (event, emojiObject) => {
   }
 
 
-const download = (value)=>{
-  const data = {
-    whichFile:value,
-    whoReseverId:props.currentFriend.google.id
-    
-  }
-  axios({
-    url:`http://localhost:4000/download`,
-    method:"POST",
-    responseType:"blob",
-    data,
-    withCredentials:true
-  }).then((res)=>{
-  fileDownload(res.data,`${value}`)
-  }).catch((err) =>{
-    console.log(err)
-  })
-}
+
 
 
 const commands = [
@@ -243,19 +258,36 @@ const speaking = ()=>{
     <div className='chat'>
     <div className='chat__header'>
     
-    <StyledBadge
+   
+    
+      {
+ props.activeUser && props.activeUser.length > 0 && props.activeUser.some(u => u.userId === props.currentFriend._id) ? 
+ <StyledBadge
         overlap="circular"
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         variant="dot"
       >
         <Avatar src={ props.currentFriend.google.avatar} />
       </StyledBadge>
+      
+  :
+  <Avatar src={ props.currentFriend.google.avatar} />
+    }
   
+ 
+       
+ <div className='chat__headerInfo'>
+ <h3>{props.currentFriend.google.name}</h3>
+ {
+   props.activeUser && props.activeUser.length > 0 && props.activeUser.some(u => u.userId === props.currentFriend._id) ? 
+   <p>Active</p>
+   :
+   ""
+ }
 
-    <div className='chat__headerInfo'>
-    <h3>{props.currentFriend.google.name}</h3>
-    <p>last seen at one hours</p>
-    </div>
+ </div>
+      
+  
 
     <div className='chat__headerLeft'>
      
@@ -271,42 +303,25 @@ const speaking = ()=>{
 props.message && props.message.length > 0 ? props.message.map(m=>
         m.senderId === user.id ?  <p ref={props.scrollRef} className='chat__message chat__receiver'>
  
- { m.message.text === "" && m.message.file === ""  ? 
+ { m.message.text === ""  ? 
+   
+  
      <Space size={12}>
      <Image
        width={200}
-       src={`http://localhost:4000/files/${m.message.image}`}
-     
+       src={`data:${m.message.image.contentType};base64,` +   m.message.image.content}
+      
      />
    
    </Space> 
      
-     : m.message.text === "" && m.message.image === "" ?
-        <div>   
- <span style={{ padding:"10px" }}>
- <FileFilled style={{ fontSize: '24px' }}/>
- </span>
-
- <span>
-   {m.message.file}
-
- </span>
- <span onClick={()=>{
-  
-  download(m.message.file)
- }} >
- <IconButton 
-     
-     
-      >
-      <DownCircleFilled />
-    </IconButton>
- </span>
-          </div> 
     :
      m.message.text
 
+    
+
      }
+
   
     
       <span className='chat__timestamp'>
@@ -317,38 +332,17 @@ props.message && props.message.length > 0 ? props.message.map(m=>
         : 
 
         <p ref={props.scrollRef} className='chat__message '>
-          { m.message.text === "" && m.message.file === ""  ? 
+
+          { m.message.text === ""   ? 
      <Space size={12}>
      <Image
        width={200}
-       src={`http://localhost:4000/files/${m.message.image}`}
+       src={`data:${m.message.image.contentType};base64,` +   m.message.image.content}
      
      />
    
    </Space> 
-     
-     : m.message.text === "" && m.message.image === "" ?
-        <div>   
- <span style={{ padding:"10px" }}>
- <FileFilled style={{ fontSize: '24px' }}/>
- </span>
-
- <span>
-   {m.message.file}
-
- </span>
- <span  onClick={async ()=>{
-   setCurrentFile(m.message.file)
-   dowloandFile()
- }} >
- <IconButton 
-     
-     
-      >
-      <DownCircleFilled />
-    </IconButton>
- </span>
-          </div> 
+    
     :
      m.message.text
 
@@ -362,12 +356,34 @@ props.message && props.message.length > 0 ? props.message.map(m=>
           </p>
 
 ):""
+     
+
         }
-
-
-
+  {
+                props.typingMessage && props.typingMessage.msg && props.typingMessage.senderId === props.currentFriend._id ?
+                 <div className="typing-message">
+                    <div className="fd-message">
+                        <div className="image-message-time">
+                        <IconButton >
+            
+                        <Avatar src={props.currentFriend.google.avatar} />
+           
+                           </IconButton>
+                          
+                            <div className="message-time">
+                                <div className="fd-text">
+                                    <p className='chat__message'>Typing message....</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 :
+                  ''
+            }
       </div>
      
+    
       {showEmoji ? 
      <Picker 
      onEmojiClick={onEmojiClick} 
@@ -407,7 +423,14 @@ props.message && props.message.length > 0 ? props.message.map(m=>
     </form>
 :
 <form>
-<Input value={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message ' type="text"      />
+<Input value={input} onChange={(e) => {
+  setInput(e.target.value)
+  socket.current.emit('typingMessage', {
+    senderId: user.id,
+    reseverId: props.currentFriend._id,
+    msg: e.target.value
+})
+}} placeholder='Type a message ' type="text"      />
      <button onClick={sendMessage} type='submit'>
    
      </button>
@@ -415,7 +438,7 @@ props.message && props.message.length > 0 ? props.message.map(m=>
     }
    
 
-
+  
     
 
     <IconButton onClick={speaking} >
