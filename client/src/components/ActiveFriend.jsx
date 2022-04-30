@@ -3,8 +3,9 @@ import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
-
-
+import { useDispatch, useSelector } from 'react-redux'
+import {getMessage} from "./../store/action/messengerAction"
+import {IconButton} from "@material-ui/core"
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -36,10 +37,20 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   }));
 
   
-const ActiveFriend =  ({user}) => {
-console.log(user.userInfo.avatar)
+const ActiveFriend =  ({user,setCurrentFriend}) => {
+    const dispatch = useDispatch()
 
   return (
+
+      <IconButton onClick={()=>{
+        setCurrentFriend({
+            _id:user.userInfo.id,
+            google:user.userInfo
+  
+        })
+        dispatch(getMessage(user.userInfo.id))
+      }}>
+
     <Stack direction="row" spacing={2}>
     <StyledBadge
       overlap="circular"
@@ -49,7 +60,7 @@ console.log(user.userInfo.avatar)
       <Avatar  src={user.userInfo.avatar} />
     </StyledBadge>
     </Stack>
-   
+    </IconButton>
     )
 }
 
