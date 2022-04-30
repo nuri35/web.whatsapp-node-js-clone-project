@@ -1,7 +1,7 @@
 const { createConnectedClient, clientClose} = require('./../db/redis_config');
 const shortid = require('shortid');
 const _ = require("lodash")
-const path = require("path");
+const fs = require("fs")
 
 
 const messageSend = async(req,res,next)=>{
@@ -13,7 +13,6 @@ const messageSend = async(req,res,next)=>{
         JSON.stringify({
             message:{
                 text:req.body.messageContent,
-                file:"",
                 image:""
             },
             when:Date.now(),
@@ -25,7 +24,6 @@ const messageSend = async(req,res,next)=>{
         res.status(200).json({message:{
             message:{
                 text:req.body.messageContent,
-                file:"",
                 image:""
             },
             when:Date.now(),
@@ -88,51 +86,17 @@ const messageSendFile = async (req,res,next)=>{
 
     try{
       
-
+      
         if(req.file){
-            const client = await createConnectedClient()
-            const filetypesImage = /jpeg|jpg|png/;
-            const extnameControl = filetypesImage.test(path.extname(req.file.originalname).toLowerCase());
-
-            if(!extnameControl){
-
-                   
+        
+            let encode_image = fs.readFileSync(req.file.path,{encoding: 'base64'})
+                const client = await createConnectedClient()
                 await client.hSet(`${req.body.reseverId}`,
                 shortid.generate(),
                 JSON.stringify({
                     message:{
                         text:"",
-                        image:"",
-                        file:req.file.filename
-                    },
-                    when:Date.now(),
-                    senderId:req.body.senderId
-                })
-        
-                );
-                
-            res.json({success:true,message:{
-                message:{
-                    text:"",
-                    image:"",
-                    file:req.file.filename
-                },
-                when:Date.now(),
-                senderId:req.body.senderId
-            }
-            
-            }) 
-        
-
-
-            }else{
-                await client.hSet(`${req.body.reseverId}`,
-                shortid.generate(),
-                JSON.stringify({
-                    message:{
-                        text:"",
-                        file:"",
-                        image:req.file.filename
+                        image: {contentType:req.file.mimetype,content:encode_image}, 
                     },
                     when:Date.now(),
                     senderId:req.body.senderId
@@ -143,16 +107,14 @@ const messageSendFile = async (req,res,next)=>{
             res.json({success:true,message:{
                 message:{
                     text:"",
-                    file:"",
-                    image:req.file.filename
+                    image: {contentType:req.file.mimetype,content:encode_image},
                 },
                 when:Date.now(),
                 senderId:req.body.senderId
             }
             
             }) 
-            }
-       
+        
             await clientClose()
 
 

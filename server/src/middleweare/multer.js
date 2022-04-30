@@ -9,21 +9,22 @@ const storage = multer.diskStorage({
 
     filename:(req,file,cb)=>{
       
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9) 
-    cb(null, uniqueSuffix +  '-' +  path.extname(file.originalname))
+     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9) 
+     const fileName = uniqueSuffix +  '-' +  path.extname(file.originalname)
+    cb(null, fileName)
     }
 
 })
 
 
 const fileFilter  = (req,file,cb)=>{
-   
+  
     const fileSize = parseInt(req.headers['content-length']);
    
-    const filetypes = /jpeg|jpg|png|pdf|txt|text|docx|xlsx|document|sheet/;
+    const filetypes = /jpeg|jpg|png/;
  
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    // Check mime
+  
     const mimetype = filetypes.test(file.mimetype);
    
  
