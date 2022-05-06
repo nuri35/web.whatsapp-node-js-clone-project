@@ -88,3 +88,13 @@ export const ImageMessageSend = (data) => async(dispatch)=>{
     }
     
 }
+
+
+export const seenMessage = (msg)=>async(dispatch)=>{
+    try {
+      
+        const response = await API.post('/messenger/seenMessage',msg,{ withCredentials: true });
+    } catch (error) {
+        console.log(error.response.message)
+    }
+}

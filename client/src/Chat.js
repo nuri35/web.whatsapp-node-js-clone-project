@@ -17,8 +17,7 @@ import { styled as styl } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import {messageSend} from "./store/action/messengerAction"
 import { AuthContext } from "./components/Context";
-import axios from "axios"
-import fileDownload from 'js-file-download'
+import { HiOutlineCheckCircle, RiCheckboxCircleFill } from "react-icons/all";
 moment.locale("tr")
 
 
@@ -120,23 +119,11 @@ const onEmojiClick = (event, emojiObject) => {
       }
 
       const dataSend = {
-        senderId:user.id,
         SenderUser :user.name,
         reseverId : props.currentFriend._id,
-        messageContent : messContent
+        messageContent : messContent ? messContent : "❤️"
       }
     
-      socket.current.emit("sendMessage",({
-        senderId:user.id,
-        when:Date.now(),
-        reseverId :props.currentFriend._id,
-        message:{
-          text: messContent,
-          file:"",
-          image:""
-      },
-      
-      }))
 
       dispatch(messageSend(dataSend))
   
@@ -146,24 +133,11 @@ const onEmojiClick = (event, emojiObject) => {
     }else{
       e.preventDefault();
       const dataSend = {
-        senderId:user.id,
-        SenderUser :user.name,
         reseverId : props.currentFriend._id,
         messageContent : input?input: "❤️"
       }
 
-      socket.current.emit("sendMessage",({
-        senderId:user.id,
-        when:Date.now(),
-        reseverId : props.currentFriend._id,
-        message:{
-          text: input?input: "❤️",
-          file:"",
-          image:""
-      },
-      
-      }))
-
+     
       socket.current.emit('typingMessage', {
         senderId: user.id,
         reseverId: props.currentFriend._id,
@@ -322,13 +296,22 @@ props.message && props.message.length > 0 ? props.message.map(m=>
 
      }
 
-  
+       
+       
+      
     
       <span className='chat__timestamp'>
          
       {moment(m.when).startOf('mini').fromNow()}
           </span>
+          {
+          m.status === "seen" ? <img className='img' src={`data:${m.message.image.contentType};base64,` +   m.message.image.content} alt="" /> : m.status === 'delivared' ? <span><RiCheckboxCircleFill />  </span> :    <span>
+          <HiOutlineCheckCircle /> </span>  
+        }
+
         </p>
+  
+
         : 
 
         <p ref={props.scrollRef} className='chat__message '>
@@ -359,6 +342,7 @@ props.message && props.message.length > 0 ? props.message.map(m=>
      
 
         }
+        
   {
                 props.typingMessage && props.typingMessage.msg && props.typingMessage.senderId === props.currentFriend._id ?
                  <div className="typing-message">

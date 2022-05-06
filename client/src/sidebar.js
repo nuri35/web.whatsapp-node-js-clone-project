@@ -1,8 +1,6 @@
 import React,{useState,useContext,useEffect,useRef} from 'react'
 import "./Sidebar.css"
-import ChatIcon from '@mui/icons-material/Chat';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import AvatarGroup from '@mui/material/AvatarGroup';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {Avatar,IconButton} from "@material-ui/core"
 import SidebarChat from "./SidebarChat"
@@ -15,23 +13,25 @@ import Toolbar from '@mui/material/Toolbar';
 import { AuthContext } from "./components/Context";
 import ActiveFriend from "./components/ActiveFriend";
 import { useDispatch, useSelector } from 'react-redux'
-import {getFriends,getMessage,ImageMessageSend} from "./store/action/messengerAction"
+import {getFriends,getMessage,ImageMessageSend,seenMessage} from "./store/action/messengerAction"
 import useSound from 'use-sound';
 import moment from 'moment';
-import sendingSound from './audio/frontend_src_audio_sending.mp3';
+import messageSound from "./audio/audio_alert.mp3"
 import { message as antMessage} from 'antd';
 import io from "socket.io-client";
-import path from "path"
+
 moment.locale("tr")
 
 
 function sidebar() {
   const dispatch = useDispatch()
-  const [sendingSPlay] = useSound(sendingSound);
+
+  const [notificationSPlay] = useSound(messageSound);
+  
   const {user} = useContext(AuthContext)
 const scrollRef = useRef()
 const socket =  useRef()
-  const {friends,message} = useSelector(state=>state.messenger)
+  const {friends,message,messageSendSuccess} = useSelector(state=>state.messenger)
   
   const [currentFriend,setCurrentFriend] = useState(null)
   const [socketMessage,setSocketMessage] = useState("")
@@ -96,10 +96,22 @@ useEffect(() => {
             message : socketMessage
         }
     })
+  
+    dispatch(seenMessage(socketMessage))
     }
-
+   
   }
   setSocketMessage("")
+}, [socketMessage])
+
+console.log(currentFriend)
+useEffect(() => {
+ 
+  if (socketMessage && socketMessage.senderId === currentFriend._id && socketMessage.reseverId === user.id) {
+    notificationSPlay();
+ 
+    
+  }
 }, [socketMessage])
 
 
@@ -120,21 +132,28 @@ useEffect(() => {
 
 
 
+  useEffect(() => {
+    if(friends && friends.length > 0){
+      setCurrentFriend(friends[0].fndInfo)
+    }
+  }, [])
+
+
 
   const imageSend = async (e)=>{
     if (e.target.files.length === 1) {
-      sendingSPlay();
+      
 
      
       const data = new FormData()
      
-      data.append("senderId", user.id);
       data.append("name", e.target.files[0].name);
       data.append("reseverId", currentFriend.google.id);
       data.append("file", e.target.files[0]);
     
     
     let dataState =  await dispatch(ImageMessageSend(data));
+
 
     socket.current.emit("sendMessage",({
       senderId:user.id,
@@ -173,7 +192,12 @@ useEffect(() => {
         }
       }
     
-  
+      useEffect(() => {
+          if(messageSendSuccess){
+            socket.current.emit("sendMessage",message[message.length-1])
+          }
+      }, [messageSendSuccess])
+      
  
   useEffect(() => {
     scrollRef.current?.scrollIntoView({behavior:"smooth"})
@@ -248,17 +272,14 @@ useEffect(() => {
 
         </div>
 
-
-       
-
         <div className='sidebar__chats'>
         {
         friends && friends.length > 0 ? friends.map(friend => 
           <div className='hover-friend' onClick={()=> {
-            setCurrentFriend(friend) 
-            dispatch(getMessage(friend.google.id))
+            setCurrentFriend(friend.fndInfo) 
+            dispatch(getMessage(friend.fndInfo._id))
           }  }>
-          <SidebarChat friend={friend}  />
+          <SidebarChat   myId={user.id}  friend={friend}  />
           </div>
           ) :
           <></>
