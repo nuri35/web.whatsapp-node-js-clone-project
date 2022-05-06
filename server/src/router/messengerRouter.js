@@ -10,5 +10,5 @@ const uploadfiles = require("../middleweare/multer")
 router.post("/sendMessage",messengerController.messageSend)
 router.get("/getMessage/:id",messengerController.getMessageByUser)
 router.post("/imageMessageSend",uploadfiles.single("file"),messengerController.messageSendFile)
-
+router.post("/seenMessage",messengerController.messageSeen)
 module.exports=router
