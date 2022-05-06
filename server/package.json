@@ -26,7 +26,6 @@
     "express-session": "^1.17.2",
     "express-validator": "^6.13.0",
     "http-errors": "^1.8.0",
-    "ioredis": "^5.0.4",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "mongoose": "^6.2.9",
@@ -35,8 +34,9 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "password": "^0.1.1",
-    "redis": "^4.0.6",
-    "shortid": "^2.2.16"
+    "redis": "^4.1.0",
+    "shortid": "^2.2.16",
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3"
