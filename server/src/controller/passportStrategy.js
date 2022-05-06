@@ -19,7 +19,7 @@ module.exports = function(passport){
         },
        async function(accessToken, refreshToken, profile, done) {
          
-      console.log(accessToken)
+  
 const {email,picture,email_verified} = profile._json;
        try{
         const user = await   User.findOne({ 'google.googleId' : profile.id })

@@ -1,85 +1,87 @@
-const { createConnectedClient, clientClose} = require('./../db/redis_config');
-const shortid = require('shortid');
-const _ = require("lodash")
+const Message = require('../models/messenger_models');
 const fs = require("fs")
-
 
 const messageSend = async(req,res,next)=>{
 
-    try{
-        const client = await createConnectedClient()
-         await client.hSet(`${req.body.reseverId}`,
-        shortid.generate(),
-        JSON.stringify({
-            message:{
-                text:req.body.messageContent,
-                image:""
-            },
-            when:Date.now(),
-            senderId:req.body.senderId
-        })
+        const {
+            reseverId,
+            messageContent
+        } = req.body;
+        const senderId = req.user.id;
+       
 
-        );
-        await clientClose()
-        res.status(200).json({message:{
-            message:{
-                text:req.body.messageContent,
-                image:""
-            },
-            when:Date.now(),
-            senderId:req.body.senderId
-
+        try {
+            const insertMessage = await Message.create({
+                senderId: senderId,
+                reseverId: reseverId,
+                message: {
+                    text: messageContent,
+                    image: ''
+                }
+            })
+            res.status(201).json({
+                success: true,
+                message: insertMessage
+            })
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({
+                error: {
+                    errorMessage: 'Internal server error'
+                }
+            })
         }
-          
-        })
-
     
        
-    }catch(err){
-       
-        res.status(500).json({err:{errorMessage:"Internal server err "}})
-    }
 }
 
 
 const getMessageByUser = async(req,res,next)=>{
 
-    try{
-        const client = await createConnectedClient()
-        let messagebyuser = []
-        const getMessage = await client.hVals(req.params.id);
-        
-         getMessage.map((m)=>{
-          let messParse = JSON.parse(m)
-            return messParse
-        }).filter(mfilter =>{
-            if(mfilter.senderId == req.user.id){
-               
-                    messagebyuser.push(mfilter)  
-            }
-        })
-        
-        const getReceiveMe = await client.hVals(req.user.id);
+   try{
+    const myId = req.user.id;
+    const fdId = req.params.id
+   
+        let getAllMessage = await Message.find({
+            $or: [{
+                    $and: [{
+                        senderId: {
+                            $eq: myId
+                        }
+                    }, {
+                        reseverId: {
+                            $eq: fdId
+                        }
+                    }]
+                },
+                {
+                    $and: [{
+                        senderId: {
+                            $eq: fdId
+                        }
+                    }, {
+                        reseverId: {
+                            $eq: myId
+                        }
+                    }]
+                }
+            ]
+        });
 
-         getReceiveMe.map((m)=>{
-          let  parseReceive = JSON.parse(m)
-            return parseReceive
-        }).filter(mfilt=>{
-           
-            if(mfilt.senderId == req.params.id){
-                messagebyuser.push(mfilt)
-            }
-        })
-    await clientClose()
-
-        
-    res.status(200).json({message:_.orderBy(messagebyuser,"when","asc")})
     
+        res.status(200).json({
+            success: true,
+            message: getAllMessage
+        });
 
-    }catch(err){
-      
-        res.status(500).json({err:{errorMessage:"Internal server err "}})
-    }
+
+
+   }catch(err){
+    res.status(500).json({err:{errorMessage:"Internal server err "}})
+   }
+
+        
+  
 }
 
 const messageSendFile = async (req,res,next)=>{
@@ -88,41 +90,45 @@ const messageSendFile = async (req,res,next)=>{
       
       
         if(req.file){
-        
+            const senderId = req.user.id;
             let encode_image = fs.readFileSync(req.file.path,{encoding: 'base64'})
-                const client = await createConnectedClient()
-                await client.hSet(`${req.body.reseverId}`,
-                shortid.generate(),
-                JSON.stringify({
-                    message:{
-                        text:"",
-                        image: {contentType:req.file.mimetype,content:encode_image}, 
-                    },
-                    when:Date.now(),
-                    senderId:req.body.senderId
-                })
-        
-                );
-               
-            res.json({success:true,message:{
-                message:{
-                    text:"",
-                    image: {contentType:req.file.mimetype,content:encode_image},
-                },
-                when:Date.now(),
-                senderId:req.body.senderId
-            }
             
-            }) 
-        
-            await clientClose()
+            const insertMessage = await Message.create({
+                senderId:senderId,
+                reseverId: req.body.reseverId,
+                message: {
+                    text: '',
+                    image: {contentType:req.file.mimetype,content:encode_image}
+                }
+            })
+            res.status(201).json({
+                success: true,
+                message: insertMessage
+            })
+               
 
 
         }else{
+            
             res.json({success:false,message:"Invalid files try again "})
         }
         
      
+    }catch(err){
+        console.log(err)
+        res.status(500).json({err:{errorMessage:"Internal server err "}})
+    }
+}
+
+
+
+
+const messageSeen = async (req,res,next)=>{
+
+    try{
+   
+      console.log(req.body)
+   
     }catch(err){
 
         res.status(500).json({err:{errorMessage:"Internal server err "}})
@@ -134,4 +140,5 @@ module.exports = {
    messageSend,
    getMessageByUser,
    messageSendFile,
+   messageSeen
 }
