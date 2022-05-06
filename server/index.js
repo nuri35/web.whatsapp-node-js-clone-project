@@ -8,7 +8,6 @@ const cors = require("cors")
 const MongoStore = require('connect-mongo')
 const authrouter = require("./src/router/authRouter") 
 const messengerRouter = require("./src/router/messengerRouter") 
-const downloadRouter = require("./src/router/downloadRouter") 
 const db = require("./src/db/database_config")
 const path = require("path")
 
@@ -47,7 +46,7 @@ app.use(express.urlencoded({extended:true}))
 //api
 app.use("/auth",authrouter)
 app.use("/messenger",messengerRouter)
-app.use("/download",downloadRouter)
+
 
 
 
