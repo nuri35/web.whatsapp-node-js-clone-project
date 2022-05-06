@@ -18,9 +18,6 @@ const mongoose = require("mongoose")
 
       } ,
     
-  
-
-   
     
       },{collection:"user",timestamps:true});
       const user = mongoose.model("user",userSchema)
