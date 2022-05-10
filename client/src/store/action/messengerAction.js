@@ -95,6 +95,18 @@ export const seenMessage = (msg)=>async(dispatch)=>{
       
         const response = await API.post('/messenger/seenMessage',msg,{ withCredentials: true });
     } catch (error) {
-        console.log(error.response.message)
+      
+        console.log(error.response)
     }
+}
+
+
+export const updateMessage = (msg)=>async(dispatch)=>{
+    try {
+        const response = await API.post('/messenger/delivaredMessage',msg,{ withCredentials: true });
+    } catch (error) {
+      
+        console.log(error.response)
+    }
+
 }
