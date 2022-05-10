@@ -126,8 +126,14 @@ const messageSendFile = async (req,res,next)=>{
 const messageSeen = async (req,res,next)=>{
 
     try{
-   
-      console.log(req.body)
+         const messageId = req.body._id
+
+        await Message.findByIdAndUpdate(messageId,{status:"seen"})
+        res.status(20).json({
+            success: true
+        })
+           
+    
    
     }catch(err){
 
@@ -135,10 +141,27 @@ const messageSeen = async (req,res,next)=>{
     }
 }
 
+const messageDelivared = async (req,res,next)=>{
+
+    try{
+        const messageId = req.body._id
+
+        await Message.findByIdAndUpdate(messageId,{status:"delivared"})
+        res.status(20).json({
+            success: true
+        })
+           
+    }catch(err){
+
+        res.status(500).json({err:{errorMessage:"Internal server err "}})
+    }
+}
 
 module.exports = {
    messageSend,
    getMessageByUser,
    messageSendFile,
-   messageSeen
+   messageSeen,
+   messageDelivared,
+
 }
