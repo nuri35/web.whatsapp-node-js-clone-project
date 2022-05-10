@@ -43,6 +43,12 @@ io.on('connection', (socket) => {
     addUser(userId,socket.id,userInfo);
     io.emit('getUser',users);
 
+    const us = users.filter(u=>u.userId !== userId);
+    const con = 'new_user_add';
+    for(var i = 0 ; i<us.length ; i++){
+        socket.to(us[i].socketId).emit('new_user_add',con)
+    }
+
   });
 
   socket.on("sendMessage", (data) => {
@@ -54,6 +60,26 @@ io.on('connection', (socket) => {
     }
    
   });
+
+  socket.on('messageSeen',msg=>{
+    const user = findFriend(msg.senderId);
+    if(user !== undefined){
+        socket.to(user.socketId).emit('msgSeenResponse',msg)
+    }
+})
+socket.on('delivaredMessage',msg=>{
+    const user = findFriend(msg.senderId);
+    if(user !== undefined){
+        socket.to(user.socketId).emit('msgDelivaredResponse',msg)
+    }
+})
+socket.on('seen',data=>{
+    
+    const user = findFriend(data.senderId);
+    if(user !== undefined){
+        socket.to(user.socketId).emit('seenSuccess',data);
+    }
+})
 
   socket.on('typingMessage',(data)=>{
 
