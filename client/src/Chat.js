@@ -18,6 +18,7 @@ import Badge from '@mui/material/Badge';
 import {messageSend} from "./store/action/messengerAction"
 import { AuthContext } from "./components/Context";
 import { HiOutlineCheckCircle, RiCheckboxCircleFill } from "react-icons/all";
+import LockTwoToneIcon from '@mui/icons-material/LockTwoTone';
 moment.locale("tr")
 
 
@@ -274,8 +275,8 @@ const speaking = ()=>{
       <div className='chat__body'>
 
       {
-props.message && props.message.length > 0 ? props.message.map(m=>
-        m.senderId === user.id ?  <p ref={props.scrollRef} className='chat__message chat__receiver'>
+props.message && props.message.length > 0 ? props.message.map((m,index)=>
+        m.senderId === user.id ?  <p key={index} ref={props.scrollRef} className='chat__message chat__receiver'>
  
  { m.message.text === ""  ? 
    
@@ -295,26 +296,23 @@ props.message && props.message.length > 0 ? props.message.map(m=>
     
 
      }
-
-       
-       
-      
     
       <span className='chat__timestamp'>
          
       {moment(m.when).startOf('mini').fromNow()}
           </span>
           {
-          m.status === "seen" ? <img className='img' src={`data:${m.message.image.contentType};base64,` +   m.message.image.content} alt="" /> : m.status === 'delivared' ? <span><RiCheckboxCircleFill />  </span> :    <span>
-          <HiOutlineCheckCircle /> </span>  
-        }
+             index === props.message.length - 1 && m.senderId === user.id ?
+             m.status === 'seen' ? <img className='img' src={`${props.currentFriend.google.avatar}`} alt="" /> : m.status === 'delivared' ? <span><RiCheckboxCircleFill /></span> : <span><HiOutlineCheckCircle /></span> : ''
+                                    }
+
 
         </p>
   
 
         : 
 
-        <p ref={props.scrollRef} className='chat__message '>
+        <p key={index} ref={props.scrollRef} className='chat__message '>
 
           { m.message.text === ""   ? 
      <Space size={12}>
@@ -336,9 +334,19 @@ props.message && props.message.length > 0 ? props.message.map(m=>
         {moment(m.when).startOf('mini').fromNow()}
        
             </span>
+         
+
           </p>
 
-):""
+):
+<div className='friend_connect'>
+<span><LockTwoToneIcon  /></span>
+<span className='attention'>
+Mesajlar uçtan uca şifrelidir. WhatsApp da dahil olmak üzere bu sohbetin dışında bulunan hiç kimse mesajlarınızı 
+okuyamaz ve dinleyemez.
+</span>
+
+</div>
      
 
         }
