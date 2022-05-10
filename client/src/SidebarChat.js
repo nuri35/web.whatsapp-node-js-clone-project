@@ -12,6 +12,7 @@ import { HiOutlineCheckCircle, RiCheckboxCircleFill } from "react-icons/all";
 function SidebarChat(props) {
   const {fndInfo,msgInfo} = props.friend;
   const myId = props.myId;
+
 return (
     <>
     
@@ -41,14 +42,14 @@ myId === msgInfo?.senderId ?
 
         {
             msgInfo.status === 'seen' ?
-            <img src={`${fndInfo.google.avatar}`} alt="" />  : msgInfo.status === 'delivared' ? <div className="delivared"><RiCheckboxCircleFill /></div> : <div className='unseen'><HiOutlineCheckCircle /></div>
+            <img  style={{left:"120px",bottom:"30px"}} src={fndInfo.google.avatar}  /> : msgInfo.status === 'delivared' ? <div className="delivared"><RiCheckboxCircleFill /></div> : <div className='unseen'><HiOutlineCheckCircle /></div>
         }
     </div> :
     <div className="seen-unseen-icon">
         {
             msgInfo?.status !== undefined && msgInfo?.status !== 'seen' ? <div className="seen-icon">
 
-      <Badge color="success" badgeContent="3" style={{left:"70px",bottom:"10px"}}>
+      <Badge color="success" badgeContent={4} style={{left:"120px",bottom:"10px"}}>
   
       </Badge>
             </div> : ''
