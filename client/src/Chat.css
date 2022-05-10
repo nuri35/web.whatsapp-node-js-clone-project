@@ -110,3 +110,24 @@ background-color: #dcf8c6;
    color: gray;
   }
 
+.friend_connect{
+    background-color: #FFEECD;
+    position: relative;
+    font-size: 14px;
+    padding: 10px;
+    width: fit-content;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    background-color: #FFEECD;
+    font-family: "Segoe UI";
+    top:380px;
+    left:15px;
+  
+}
+
+.attention{
+  margin:7px;
+ 
+   font-size:11px;
+    color: #546580;
+}
